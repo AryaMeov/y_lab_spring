@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.validation.ValidationException;
+
 
 @Slf4j
 @ControllerAdvice
@@ -21,6 +23,12 @@ public class ControllerExceptionHandler {
                 .body(new BaseWebResponse(createErrorMessage(exc)));
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<BaseWebResponse> handleConstraintViolationException(@NonNull final ValidationException exc) {
+        log.error(exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new BaseWebResponse(createErrorMessage(exc)));
+    }
     private String createErrorMessage(Exception exception) {
         final String message = exception.getMessage();
         log.error(ExceptionHandlerUtils.buildErrorMessage(exception));
