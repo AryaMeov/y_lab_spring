@@ -1,10 +1,11 @@
 package com.edu.ulab.app.service.impl;
 
 import com.edu.ulab.app.dto.UserDto;
-import com.edu.ulab.app.entity.UserEntity;
+import com.edu.ulab.app.entity.PersonEntity;
+import com.edu.ulab.app.exception.PersonNotFoundException;
 import com.edu.ulab.app.mapper.UserMapper;
-import com.edu.ulab.app.service.UserService;
 import com.edu.ulab.app.repository.UserRepository;
+import com.edu.ulab.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,31 +14,42 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository repository;
-    private final UserMapper mapper;
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
     @Override
     public UserDto createUser(UserDto userDto) {
-        UserEntity userEntity = mapper.userDtoToUserEntity(userDto);
-        userEntity.setId(repository.getNextId());
-        userEntity = repository.save(userEntity);
-        return mapper.userEntityToUserDto(userEntity);
+        PersonEntity user = userMapper.userDtoToPerson(userDto);
+        log.info("Mapped user: {}", user);
+        PersonEntity savedUser = userRepository.save(user);
+        log.info("Saved user: {}", savedUser);
+        return userMapper.personToUserDto(savedUser);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        UserEntity userEntity = mapper.userDtoToUserEntity(userDto);
-        userEntity = repository.update(userEntity);
-        return mapper.userEntityToUserDto(userEntity);
+        PersonEntity findUser = userRepository.findByIdForUpdate(userDto.getId()).orElseThrow(() -> new PersonNotFoundException(userDto.getId()));
+        log.info("Find user: {}", findUser);
+        PersonEntity user = userMapper.userDtoToPerson(userDto);
+        log.info("Mapped user: {}", user);
+        PersonEntity savedUser = userRepository.save(user);
+        log.info("Saved user: {}", savedUser);
+        return userMapper.personToUserDto(savedUser);
     }
 
     @Override
     public UserDto getUserById(Long id) {
-        UserEntity userEntity = repository.getById(id);
-        return mapper.userEntityToUserDto(userEntity);
+        PersonEntity user = userRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+        log.info("Found user: {}", user);
+        return userMapper.personToUserDto(user);
     }
 
     @Override
     public void deleteUserById(Long id) {
-        repository.deleteById(id);
+        PersonEntity findUser = userRepository.findByIdForUpdate(id).orElseThrow(() -> new PersonNotFoundException(id));
+        log.info("Find user: {}", findUser);
+        userRepository.deleteById(id);
+        log.info("User deleted");
     }
 }

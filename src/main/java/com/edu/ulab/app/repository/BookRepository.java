@@ -1,42 +1,27 @@
-
 package com.edu.ulab.app.repository;
 
 import com.edu.ulab.app.entity.BookEntity;
-import com.edu.ulab.app.exception.BookNotFoundException;
-import com.edu.ulab.app.storage.Storage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
+import javax.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Component
-@RequiredArgsConstructor
-public class BookRepository {
-    private final Storage<BookEntity> storage;
-    private final AtomicLong atomicLong = new AtomicLong(1);
+@Repository
+public interface BookRepository extends CrudRepository<BookEntity, Long> {
 
-    public Long getNextId() {
-        return atomicLong.getAndIncrement();
-    }
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select b from BookEntity b where b.id = :id")
+    Optional<BookEntity> findByIdForUpdate(long id);
 
-    public BookEntity save(BookEntity entity) {
-        return storage.save(entity);
-    }
-    public BookEntity update(BookEntity entity) {
-        return Optional.ofNullable(storage.update(entity)).orElseThrow(() -> new BookNotFoundException(entity.getId()));
-    }
+    @Query("select b from BookEntity b where b.person.id = :userId")
+    List<BookEntity> findAllByUserId(long userId);
 
-    public BookEntity getById(Long id) {
-        return Optional.ofNullable(storage.getById(id)).orElseThrow(() -> new BookNotFoundException(id));
-    }
-
-    public List<BookEntity> getByUserId(Long userId) {
-        return storage.getAll().stream().filter(book -> book.getUserId().equals(userId)).toList();
-    }
-
-    public void deleteById(Long id) {
-        storage.deleteById(id);
-    }
+    @Modifying
+    @Query("delete from BookEntity b where b.person.id = :userId")
+    void deleteAllByUserId(long userId);
 }
