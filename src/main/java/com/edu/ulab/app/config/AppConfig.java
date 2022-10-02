@@ -1,7 +1,7 @@
 package com.edu.ulab.app.config;
 
 import com.edu.ulab.app.entity.BookEntity;
-import com.edu.ulab.app.entity.UserEntity;
+import com.edu.ulab.app.entity.PersonEntity;
 import com.edu.ulab.app.storage.Storage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
     @Bean
-    public Storage<UserEntity> userStorage(){
-        return new Storage<UserEntity>();
+    public Storage<PersonEntity> userStorage(){
+        return new Storage<PersonEntity>();
     }
 
     @Bean

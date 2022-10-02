@@ -4,8 +4,11 @@ import com.edu.ulab.app.dto.BookDto;
 import com.edu.ulab.app.dto.UserDto;
 import com.edu.ulab.app.mapper.BookMapper;
 import com.edu.ulab.app.mapper.UserMapper;
-import com.edu.ulab.app.service.BookService;
-import com.edu.ulab.app.service.UserService;
+
+import com.edu.ulab.app.service.impl.BookServiceImpl;
+import com.edu.ulab.app.service.impl.BookServiceImplTemplate;
+import com.edu.ulab.app.service.impl.UserServiceImpl;
+import com.edu.ulab.app.service.impl.UserServiceImplTemplate;
 import com.edu.ulab.app.validation.UserBookRequestValidationService;
 import com.edu.ulab.app.web.request.UserBookRequest;
 import com.edu.ulab.app.web.response.UserBookResponse;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -22,12 +26,13 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class UserDataFacade {
-    private final UserService userService;
-    private final BookService bookService;
+    private final UserServiceImplTemplate userService;
+    private final BookServiceImplTemplate bookService;
     private final UserMapper userMapper;
     private final BookMapper bookMapper;
     private final UserBookRequestValidationService validatingService;
 
+    @Transactional
     public UserBookResponse createUserWithBooks(UserBookRequest request) {
         log.info("Got user book create request: {}", request);
         validatingService.validateCreateRequest(request);
@@ -56,6 +61,7 @@ public class UserDataFacade {
                 .build();
     }
 
+    @Transactional
     public UserBookResponse updateUserWithBooks(UserBookRequest request) {
         log.info("Got user book update request: {}", request);
         validatingService.validateUpdateRequest(request);
@@ -121,12 +127,13 @@ public class UserDataFacade {
                 .build();
     }
 
+    @Transactional
     public void deleteUserWithBooks(Long userId) {
         log.info("Got user book delete request by id: {}", userId);
         validatingService.validateId(userId);
-        userService.deleteUserById(userId);
-        log.info("Delete user: {}", userId);
         bookService.deleteBooksByUserId(userId);
         log.info("Delete books by user: {}", userId);
+        userService.deleteUserById(userId);
+        log.info("Delete user: {}", userId);
     }
 }

@@ -6,9 +6,9 @@ import com.edu.ulab.app.dto.BookDto;
 import java.util.List;
 
 public interface BookService {
-    BookDto createBook(BookDto userDto);
+    BookDto createBook(BookDto bookDto);
 
-    BookDto updateBook(BookDto userDto);
+    BookDto updateBook(BookDto bookDto);
 
     BookDto getBookById(Long id);
 
