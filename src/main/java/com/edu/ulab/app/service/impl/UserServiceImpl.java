@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        PersonEntity findUser = userRepository.findByIdForUpdate(userDto.getId()).orElseThrow(() -> new PersonNotFoundException(userDto.getId()));
+        PersonEntity findUser = userRepository.findByIdForUpdate(Math.toIntExact(userDto.getId())).orElseThrow(() -> new PersonNotFoundException(userDto.getId()));
         log.info("Find user: {}", findUser);
         PersonEntity user = userMapper.userDtoToPerson(userDto);
         log.info("Mapped user: {}", user);
@@ -40,16 +40,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        PersonEntity user = userRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+        PersonEntity user = userRepository.findById(Math.toIntExact(id)).orElseThrow(() -> new PersonNotFoundException(id));
         log.info("Found user: {}", user);
         return userMapper.personToUserDto(user);
     }
 
     @Override
     public void deleteUserById(Long id) {
-        PersonEntity findUser = userRepository.findByIdForUpdate(id).orElseThrow(() -> new PersonNotFoundException(id));
+        PersonEntity findUser = userRepository.findByIdForUpdate(Math.toIntExact(id)).orElseThrow(() -> new PersonNotFoundException(id));
         log.info("Find user: {}", findUser);
-        userRepository.deleteById(id);
+        userRepository.deleteById(Math.toIntExact(id));
         log.info("User deleted");
     }
 }

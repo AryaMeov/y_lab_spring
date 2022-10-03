@@ -37,7 +37,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto updateBook(BookDto bookDto) {
-        BookEntity findBook = bookRepository.findByIdForUpdate(bookDto.getId()).orElseThrow(() -> new BookNotFoundException(bookDto.getId()));
+        BookEntity findBook = bookRepository.findByIdForUpdate(Math.toIntExact(bookDto.getId())).orElseThrow(() -> new BookNotFoundException(bookDto.getId()));
         log.info("Find book: {}", findBook);
         BookEntity book = bookMapper.bookDtoToBookEntity(bookDto);
         log.info("Mapped book: {}", book);
@@ -48,28 +48,28 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto getBookById(Long id) {
-        BookEntity findBook = bookRepository.findByIdForUpdate(id).orElseThrow(() -> new BookNotFoundException(id));
+        BookEntity findBook = bookRepository.findById(Math.toIntExact(id)).orElseThrow(() -> new BookNotFoundException(id));
         log.info("Find book: {}", findBook);
         return bookMapper.bookEntityToBookDto(findBook);
     }
 
     @Override
     public List<BookDto> getBooksByUserId(Long userId) {
-        List<BookEntity> books = bookRepository.findAllByUserId(userId);
+        List<BookEntity> books = bookRepository.findAllByUserId(Math.toIntExact(userId));
         log.info("Book find by user id: {}, count: {}", userId, books.size());
         return bookMapper.bookEntitiesToBookDtos(books);
     }
 
     @Override
     public void deleteBookById(Long id) {
-        bookRepository.deleteById(id);
+        bookRepository.deleteById(Math.toIntExact(id));
         log.info("Book delete by id: {}", id);
     }
 
     @Override
     public void deleteBooksByUserId(Long userId) {
         try{
-            bookRepository.deleteAllByUserId(userId);
+            bookRepository.deleteAllByUserId(Math.toIntExact(userId));
             log.info("Book delete by id: {}", userId);
         } catch (EmptyResultDataAccessException e) {
             log.info("No books for current user: {}", userId);
