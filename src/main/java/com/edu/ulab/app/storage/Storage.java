@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // продумать что у узера может быть много книг и нужно создать эту связь
 // так же учесть, что методы хранилища принимают друго тип данных - учесть это в абстракции
 public class Storage<T extends BaseEntity> {
-    private final ConcurrentHashMap<Long, T> storage = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap<>();
 
     public T save(T entity) {
         storage.put(entity.getId(), entity);
